@@ -102,12 +102,6 @@ class FormLoginState extends State<FormLogin> {
                     'email': controllers[0].text,
                     'password': controllers[1].text
                   };
-                  // Scaffold.of(context).showSnackBar(
-                  //   SnackBar(
-
-                  //     content: Text('Autenticando')
-                  //   )
-                  // );
                   postHttp('/login', data).then(
                     (res) {
                       if (res['token'] != null) {
@@ -120,6 +114,12 @@ class FormLoginState extends State<FormLogin> {
                           )
                         );
                       }  
+                    }
+                  ).catchError(
+                    (err) {
+                      print("Entró Aqui");
+                      removeIp();
+                      Navigator.of(context).pushReplacementNamed('verify');
                     }
                   );
                 },
