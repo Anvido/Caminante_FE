@@ -1,4 +1,6 @@
+import 'package:caminantapp/request.dart';
 import 'package:flutter/material.dart';
+import 'storage.dart';
 
 const double auxPadding = 32;
 
@@ -7,9 +9,6 @@ class Register extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
-        title: Text('Iniciar Sesion'),
-      ),*/
       body: FormRegister(),
     );
   }
@@ -22,120 +21,150 @@ class FormRegister extends StatefulWidget {
 
 class FormRegisterState extends State<FormRegister> {
 
-  final _formLoginKey = GlobalKey<FormState>();
+  var _usernameController = TextEditingController();
+  var _passwordController = TextEditingController();
+  var _emailController = TextEditingController();
+
+  _onPressed() {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Processing Data')
+      )
+    );
+
+    Map<String, dynamic> data = {
+      "username": _usernameController.text,
+      "email": _emailController.text,
+      "password": _passwordController.text
+    };
+    postHttp('/register', data).then(
+      (res) {
+        print(res);
+        setToken(res['token']).then(
+          (val) {
+            Navigator.of(context).pushReplacementNamed('home');
+          }
+        );
+      }
+    ).catchError(
+      (err) {
+        print("ERROR==========================================");
+        print(err);
+        removeIp();
+        Navigator.of(context).pushReplacementNamed('ipget');
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        child: Form(
-          key: _formLoginKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: auxPadding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: auxPadding
+              ),
+              child: Text('Registrarse',
+                style: TextStyle(
+                  fontSize: 30
                 ),
-                child: Text('Registrarse',
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: auxPadding,
+              ),
+              child: Image(
+                image: AssetImage('assets/images/logo.png'),
+                width: 150,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: auxPadding,
+              ),
+              child: TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'El usuario no puede estar vacio';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Usuario'
+                ),
+                controller: _usernameController,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: auxPadding,
+              ),
+              child: TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'El email no puede estar vacio';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Email'
+                ),
+                controller: _emailController,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: auxPadding
+              ),
+              child: TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'La contraseña no puede estar vacia';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Contraseña'
+                ),
+                obscureText: true,
+                controller: _passwordController,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                top: auxPadding
+              ),
+              child: FlatButton(
+                color: Colors.teal,
+                child: Text('Crear cuenta'),
+                onPressed: () {
+                  _onPressed();
+                },
+              ), 
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                top: auxPadding
+              ),
+              child: InkWell(
+                child: Text('Regresar',
                   style: TextStyle(
-                    fontSize: 30
+                    fontSize: 14,
+                    color: Colors.blueAccent
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: auxPadding,
-                ),
-                child: Image(
-                  image: AssetImage('assets/images/logo.png'),
-                  width: 150,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: auxPadding,
-                ),
-                child: TextFormField(
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'El usuario no puede estar vacio';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Usuario'
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: auxPadding,
-                ),
-                child: TextFormField(
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'El email no puede estar vacio';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Email'
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: auxPadding
-                ),
-                child: TextFormField(
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'La contraseña no puede estar vacia';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña'
-                  ),
-                  obscureText: true,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: auxPadding
-                ),
-                child: FlatButton(
-                  color: Colors.teal,
-                  child: Text('Crear cuenta'),
-                  onPressed: () {
-                    if (_formLoginKey.currentState.validate()) {
-                      Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text('Processing Data')));
-                    }
-                  },
-                ), 
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: auxPadding
-                ),
-                child: InkWell(
-                  child: Text('Regresar',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blueAccent
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  splashColor: Colors.transparent,
-                )
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                splashColor: Colors.transparent,
               )
-            ],
-          ),
-        )
+            )
+          ],
+        ),
       )
     );
   }

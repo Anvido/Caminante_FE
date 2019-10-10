@@ -1,6 +1,5 @@
 import 'package:caminantapp/ipgetter.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'storage.dart';
 import 'login.dart';
 import 'home.dart';
@@ -17,6 +16,18 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) { 
 
     return MaterialApp(
+      theme: ThemeData(
+        //brightness: Brightness.dark,
+        backgroundColor: Colors.white,
+        primaryColor: Colors.orange,
+        accentColor: Colors.orangeAccent,
+        fontFamily: 'Montserrat',
+        textTheme: TextTheme(
+          headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+          title: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+          body1: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
+        ),
+      ),
       navigatorKey: navKey,
       initialRoute: 'verify',
       routes: {
@@ -31,20 +42,9 @@ class MainApp extends StatelessWidget {
 
 class Verify extends StatelessWidget {
 
-  _getIp() async {
-    SharedPreferences mem = await SharedPreferences.getInstance();
-    if (mem.containsKey('ip')) {
-      return mem.getString('ip');
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
+  _initApp(BuildContext context) {
     updateIp().then(
       (val) {
-        print("verify: $val");
         if (val == null) {
           Navigator.of(context).pushReplacementNamed('ipget');
         } else {
@@ -53,14 +53,13 @@ class Verify extends StatelessWidget {
               if (token == null) {
                 Navigator.of(context).pushReplacementNamed('login');
               } else {
-                _getIp().then(
+                getIp().then(
                   (ip) {
                     if (ip == null) {
                       Navigator.of(context).pushReplacementNamed('ipget');
                     } else {
                       postHttp('/verify', { 'token': token }).then(
                         (res) {
-                          print(res);
                           if (res['token'] != null) {
                             Navigator.of(context).pushReplacementNamed('home');
                           } else {
@@ -70,8 +69,6 @@ class Verify extends StatelessWidget {
                       ).catchError((err) {
                         Navigator.of(context).pushReplacementNamed('ipget');
                         updateIp();
-                        print("Desde aqui============================================");
-                        print(err);
                       });
                     }
                   }
@@ -82,7 +79,11 @@ class Verify extends StatelessWidget {
         }
       }
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    _initApp(context);
     return Scaffold(
       body: Center(
         child: CircularProgressIndicator()

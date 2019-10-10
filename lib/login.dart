@@ -21,11 +21,37 @@ class FormLogin extends StatefulWidget {
 
 class FormLoginState extends State<FormLogin> {
 
-  //final _formLoginKey = GlobalKey<FormState>();
   List<TextEditingController> controllers = [
     TextEditingController(),
     TextEditingController()
   ];
+
+  _onPressed() {
+    var data = {
+      'email': controllers[0].text,
+      'password': controllers[1].text
+    };
+    postHttp('/login', data).then(
+      (res) {
+        if (res['token'] != null) {
+          setToken(res['token']);
+          Navigator.of(context).pushReplacementNamed('home');
+        } else {
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text('El email o la contraseña no son validos')
+            )
+          );
+        }  
+      }
+    ).catchError(
+      (err) {
+        print("Entró Aqui");
+        removeIp();
+        Navigator.of(context).pushReplacementNamed('verify');
+      }
+    );
+  }
     
   @override
   Widget build(BuildContext context) {
@@ -98,30 +124,7 @@ class FormLoginState extends State<FormLogin> {
                 child: Text('Ingresar'),
                 color: Colors.teal,
                 onPressed: () {
-                  var data = {
-                    'email': controllers[0].text,
-                    'password': controllers[1].text
-                  };
-                  postHttp('/login', data).then(
-                    (res) {
-                      if (res['token'] != null) {
-                        setToken(res['token']);
-                        Navigator.of(context).pushReplacementNamed('home');
-                      } else {
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('El email o la contraseña no son validos')
-                          )
-                        );
-                      }  
-                    }
-                  ).catchError(
-                    (err) {
-                      print("Entró Aqui");
-                      removeIp();
-                      Navigator.of(context).pushReplacementNamed('verify');
-                    }
-                  );
+                  _onPressed();
                 },
               ), 
             ),

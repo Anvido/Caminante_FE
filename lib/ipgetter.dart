@@ -1,5 +1,6 @@
 import 'package:caminantapp/request.dart';
 import 'package:flutter/material.dart';
+import 'storage.dart';
 
 class IpGetter extends StatelessWidget {
   @override
@@ -18,6 +19,27 @@ class IpForm extends StatefulWidget {
 class IpFormState extends State<IpForm> {
 
   var controller = TextEditingController();
+
+  _onSubmit() {
+    saveIp(controller.text).then(
+      (res) {
+        getHttp('/connect').then(
+          (res){
+            Navigator.of(context).pushReplacementNamed('verify');
+          }
+        ).catchError(
+          (err) {
+            print(err);
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text('El servidor no esta en esa IP')
+              )
+            );
+          }
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,27 +68,10 @@ class IpFormState extends State<IpForm> {
                 }
                 return null;
               },
+              keyboardType: TextInputType.number,
               controller: controller,
               onEditingComplete: () {
-                print(controller.text);
-                saveIp(controller.text).then(
-                  (res) {
-                    getHttp('/connect').then(
-                      (res){
-                        Navigator.of(context).pushReplacementNamed('verify');
-                      }
-                    ).catchError(
-                      (err) {
-                        print(err);
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('El servidor no esta en esa IP')
-                          )
-                        );
-                      }
-                    );
-                  }
-                );
+                _onSubmit();
               },
             ),
           )
