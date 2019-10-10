@@ -1,5 +1,6 @@
 import 'package:caminantapp/profile.dart';
 import 'package:caminantapp/settings.dart';
+import 'package:caminantapp/storage.dart';
 import 'package:flutter/material.dart';
 import 'globals.dart';
 
@@ -44,13 +45,28 @@ class Home extends StatelessWidget {
   Widget _drawer(BuildContext context) {
     return Drawer(
       child: ListView.builder(
-        itemCount: pages.length+1,
+        itemCount: pages.length+2,
         itemBuilder: (context, index) {
           if (index == 0) {
             return DrawerHeader(
-              child: Text('Drawer Header'),
+              child: Text('Nombre de perfil'),
               decoration: BoxDecoration(
                 color: Colors.black38,
+              ),
+            );
+          } else if (index == pages.length + 1) {
+            return Material(
+              child: InkWell(
+                splashColor: Colors.orange,
+                child: ListTile(
+                  title: Text('Cerrar Sesion'),
+                  leading: Icon(Icons.exit_to_app),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, 'login');
+                  removeToken();
+                },
               ),
             );
           }
@@ -80,25 +96,29 @@ class Feed extends StatefulWidget {
 
 class FeedState extends State<Feed> {
 
-  Widget _createCard() {
+  Widget _createCard(String title) {
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const ListTile(
-            leading: Icon(Icons.album),
-            title: Text('The Enchanted Nightingale'),
-            subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+          Container(
+            height: 150,
+            color: Colors.black38,
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.only(
+              top: 16, left: 16, right: 16
+            ),
+            //leading: Icon(Icons.album),
+            title: Text(title),
+            subtitle: Text('Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nihil quidem reiciendis, omnis sint at non sunt porro, rem est dolorem. '),
           ),
           ButtonTheme.bar( // make buttons use the appropriate styles for cards
             child: ButtonBar(
-              children: <Widget>[
+
+              children: <Widget>[ 
                 FlatButton(
-                  child: const Text('BUY TICKETS'),
-                  onPressed: () { /* ... */ },
-                ),
-                FlatButton(
-                  child: const Text('LISTEN'),
+                  child: const Text('VER MAS'),
                   onPressed: () { /* ... */ },
                 ),
               ],
@@ -106,13 +126,14 @@ class FeedState extends State<Feed> {
           ),
         ],
       ),
+      margin: EdgeInsets.symmetric( horizontal: 8, vertical: 8),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemBuilder: (context, index) => _createCard(),
+      itemBuilder: (context, index) => _createCard("Evento ${index+1}"),
       itemCount: 20,
     );
   }
@@ -149,20 +170,11 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
-        /*BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          activeIcon: Icon(Icons.star),
-          title: Text('Todos'),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          activeIcon: Icon(Icons.star),
-          title: Text('Todos'),
-        ),*/
-        //_createNavItem('Todos', Icons.star),
+        _createNavItem('Todos', Icons.star),
         _createNavItem('Transporte', Icons.directions_car),
-        _createNavItem('Deportes', Icons.fast_forward),
+        _createNavItem('Deportes', Icons.directions_bike),
         _createNavItem('Comida', Icons.fastfood),
       ],
       currentIndex: currentFilter,

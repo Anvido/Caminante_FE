@@ -122,7 +122,7 @@ class FormLoginState extends State<FormLogin> {
               ),
               child: FlatButton(
                 child: Text('Ingresar'),
-                color: Colors.teal,
+                color: Theme.of(context).primaryColor,
                 onPressed: () {
                   _onPressed();
                 },
@@ -136,7 +136,8 @@ class FormLoginState extends State<FormLogin> {
                 child: Text('Crear una cuenta',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.blueAccent
+                    color: Theme.of(context).accentColor
+                    //color: Colors.blueAccent
                   ),
                 ),
                 onTap: () {

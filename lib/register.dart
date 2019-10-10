@@ -139,7 +139,7 @@ class FormRegisterState extends State<FormRegister> {
                 top: auxPadding
               ),
               child: FlatButton(
-                color: Colors.teal,
+                color: Theme.of(context).primaryColor,
                 child: Text('Crear cuenta'),
                 onPressed: () {
                   _onPressed();
@@ -154,7 +154,7 @@ class FormRegisterState extends State<FormRegister> {
                 child: Text('Regresar',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.blueAccent
+                    color: Theme.of(context).accentColor
                   ),
                 ),
                 onTap: () {
