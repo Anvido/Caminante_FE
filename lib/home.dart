@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'globals.dart';
 
 class Home extends StatefulWidget {
-
+  
   @override
   State<Home> createState() => _HomeState();
 }
@@ -28,7 +28,6 @@ class _HomeState extends State<Home>{
     Icons.settings
   ];
 
-  //String username = "Cargando";
   _request() async {
     Map<String, dynamic> body = {
       'query': """
@@ -41,7 +40,7 @@ class _HomeState extends State<Home>{
         }
       """,
     };
-
+    print("Peticion");
     Map<String, dynamic> res = await postAuth(body);
     return res;
   }

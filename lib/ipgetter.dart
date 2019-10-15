@@ -21,7 +21,7 @@ class _IpFormState extends State<IpForm> {
   var controller = TextEditingController();
 
   _onSubmit() {
-    saveIp(controller.text).then(
+    setIp(controller.text).then(
       (res) {
         getHttp('/connect').then(
           (res){

@@ -48,8 +48,6 @@ class _FormRegisterState extends State<FormRegister> {
       }
     ).catchError(
       (err) {
-        print("ERROR==========================================");
-        print(err);
         removeIp();
         Navigator.of(context).pushReplacementNamed('ipget');
       }

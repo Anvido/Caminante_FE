@@ -3,19 +3,21 @@ import 'globals.dart';
 
 setToken(String tokenP) async {
   SharedPreferences mem = await SharedPreferences.getInstance();
-  mem.setString('token', token);
+  mem.setString('token', tokenP);
   token = tokenP;
   return true;
 }
 
-verifyToken() async {
+updateToken() async {
   SharedPreferences mem = await SharedPreferences.getInstance();
   if (mem.containsKey('token')) {
     token = mem.get('token');
     return token;
   } else {
-    return null;
+    token = null;
   }
+  print("updateToken: $token");
+  return token;
 }
 
 removeToken() async {
@@ -26,15 +28,7 @@ removeToken() async {
   }
 }
 
-getIp() async {
-  SharedPreferences mem = await SharedPreferences.getInstance();
-  if (mem.containsKey('ip')) {
-    return mem.getString('ip');
-  }
-  return null;
-}
-
-saveIp(ip) async {
+setIp(String ip) async {
   SharedPreferences mem = await SharedPreferences.getInstance();
   mem.setString('ip', ip);
   url = "http://$ip:3000";
@@ -54,5 +48,6 @@ updateIp() async {
   } else {
     url = null;
   }
+  print("updateIp: $url");
   return url;
 }

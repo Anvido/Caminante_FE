@@ -44,33 +44,27 @@ class Verify extends StatelessWidget {
 
   _initApp(BuildContext context) {
     updateIp().then(
-      (val) {
-        if (val == null) {
+      (ip) {
+        if (ip == null) {
           Navigator.of(context).pushReplacementNamed('ipget');
         } else {
-          verifyToken().then(
+          updateToken().then(
             (token) {
               if (token == null) {
                 Navigator.of(context).pushReplacementNamed('login');
               } else {
-                getIp().then(
-                  (ip) {
-                    if (ip == null) {
-                      Navigator.of(context).pushReplacementNamed('ipget');
+                postHttp('/verify', { 'token': token }).then(
+                  (res) {
+                    if (res['token'] != null) {
+                      Navigator.of(context).pushReplacementNamed('home');
                     } else {
-                      postHttp('/verify', { 'token': token }).then(
-                        (res) {
-                          if (res['token'] != null) {
-                            Navigator.of(context).pushReplacementNamed('home');
-                          } else {
-                            Navigator.of(context).pushReplacementNamed('login');
-                          }
-                        }
-                      ).catchError((err) {
-                        Navigator.of(context).pushReplacementNamed('ipget');
-                        updateIp();
-                      });
+                      Navigator.of(context).pushReplacementNamed('login');
                     }
+                  }
+                ).catchError(
+                  (err) {
+                    Navigator.of(context).pushReplacementNamed('ipget');
+                    removeIp();
                   }
                 );
               }
