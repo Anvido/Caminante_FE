@@ -1,22 +1,18 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'globals.dart';
 
-getToken() async {
-    SharedPreferences mem = await SharedPreferences.getInstance();
-    var aux = mem.get('token');
-    return aux;
-  }
-
-setToken(String token) async {
+setToken(String tokenP) async {
   SharedPreferences mem = await SharedPreferences.getInstance();
   mem.setString('token', token);
+  token = tokenP;
   return true;
 }
 
 verifyToken() async {
   SharedPreferences mem = await SharedPreferences.getInstance();
   if (mem.containsKey('token')) {
-    return mem.get('token');
+    token = mem.get('token');
+    return token;
   } else {
     return null;
   }
@@ -25,6 +21,7 @@ verifyToken() async {
 removeToken() async {
   SharedPreferences mem = await SharedPreferences.getInstance();
   if (mem.containsKey('token')) {
+    token = null;
     mem.remove('token');
   }
 }

@@ -13,10 +13,10 @@ class IpGetter extends StatelessWidget {
 
 class IpForm extends StatefulWidget {
   @override
-  State<IpForm> createState() => IpFormState(); 
+  State<IpForm> createState() => _IpFormState(); 
 }
 
-class IpFormState extends State<IpForm> {
+class _IpFormState extends State<IpForm> {
 
   var controller = TextEditingController();
 

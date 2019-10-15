@@ -1,10 +1,17 @@
 import 'package:caminantapp/profile.dart';
+import 'package:caminantapp/request.dart';
 import 'package:caminantapp/settings.dart';
 import 'package:caminantapp/storage.dart';
 import 'package:flutter/material.dart';
 import 'globals.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home>{
 
   final List<String> titles = [
     'Perfil',
@@ -20,6 +27,24 @@ class Home extends StatelessWidget {
     Icons.person,
     Icons.settings
   ];
+
+  //String username = "Cargando";
+  _request() async {
+    Map<String, dynamic> body = {
+      'query': """
+        query feed {
+          getMyUser {
+            username
+            email
+            avatar
+          }
+        }
+      """,
+    };
+
+    Map<String, dynamic> res = await postAuth(body);
+    return res;
+  }
 
   Widget _drawerTile(BuildContext context, String title, IconData icon, Widget page) {
     return Material(
@@ -42,18 +67,70 @@ class Home extends StatelessWidget {
     );
   }
 
+  Widget _drawerHeader() {
+    return DrawerHeader(
+      padding: EdgeInsets.all(0),
+      child: Stack(
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/default_bg.jpg'),
+                fit: BoxFit.cover,
+              )
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: FractionalOffset.center,
+                end: FractionalOffset.bottomCenter,
+                colors: [Colors.transparent, Colors.black]
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: Colors.white, width: 1),
+                      image: DecorationImage(
+                        image: ( user.containsKey('avatar') && user['avatar'] != null ?
+                          NetworkImage(user['avatar']) :
+                          AssetImage('assets/images/user.png')
+                        ),
+                        fit: BoxFit.cover,
+                      )
+                    ),
+                  )
+                ),
+                Text(user['username'], style: TextStyle(fontSize: 24, color: Colors.white)),
+                Text(user['email'], style: TextStyle(fontSize: 12, color: Colors.white)),
+              ],
+            )
+          )
+        ],
+      )
+    );
+  }
+
   Widget _drawer(BuildContext context) {
     return Drawer(
       child: ListView.builder(
         itemCount: pages.length+2,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return DrawerHeader(
-              child: Text('Nombre de perfil'),
-              decoration: BoxDecoration(
-                color: Colors.black38,
-              ),
-            );
+            return _drawerHeader();
           } else if (index == pages.length + 1) {
             return Material(
               child: InkWell(
@@ -76,26 +153,6 @@ class Home extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Feed(),
-      drawer: _drawer(context),
-      bottomNavigationBar: BottomNavBar()
-    );
-  }
-}
-
-class Feed extends StatefulWidget {
-  @override
-  State<Feed> createState() => FeedState();
-}
-
-class FeedState extends State<Feed> {
-
   Widget _createCard(String title) {
     return Card(
       child: Column(
@@ -115,7 +172,6 @@ class FeedState extends State<Feed> {
           ),
           ButtonTheme.bar( // make buttons use the appropriate styles for cards
             child: ButtonBar(
-
               children: <Widget>[ 
                 FlatButton(
                   child: const Text('VER MAS'),
@@ -130,34 +186,12 @@ class FeedState extends State<Feed> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _feed() {
     return ListView.builder(
       itemBuilder: (context, index) => _createCard("Evento ${index+1}"),
       itemCount: 20,
     );
   }
-}
-
-class BottomNavBar extends StatefulWidget {
-
-  @override
-  State<BottomNavBar> createState() => BottomNavBarState();
-}
-
-class BottomNavBarState extends State<BottomNavBar> {
-
-  var current = 0;
-  final List<String> itemTitles = [
-    'Transporte',
-    'Deportes',
-    'Comida'
-  ];
-  final List<IconData> itemIcons = [
-    Icons.directions_car,
-    Icons.favorite,
-    Icons.fastfood
-  ];
 
   BottomNavigationBarItem _createNavItem(String title, IconData icon) {
     return BottomNavigationBarItem(
@@ -167,15 +201,12 @@ class BottomNavBarState extends State<BottomNavBar> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _bottomNav() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
-        _createNavItem('Todos', Icons.star),
-        _createNavItem('Transporte', Icons.directions_car),
-        _createNavItem('Deportes', Icons.directions_bike),
-        _createNavItem('Comida', Icons.fastfood),
+        _createNavItem('Lista', Icons.list),
+        _createNavItem('Mapa', Icons.map),
       ],
       currentIndex: currentFilter,
       onTap: (index) {
@@ -186,4 +217,32 @@ class BottomNavBarState extends State<BottomNavBar> {
     );
   }
 
+  Widget _body(BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+    if (snapshot.hasData) {
+      Map<String, dynamic> res = snapshot.data['data']['getMyUser'];
+      user['username'] = res['username'];
+      user['email'] = res['email'];
+      user['avatar'] = res['avatar'];
+      return _feed();
+    } else if (snapshot.hasError) {
+      print(snapshot);
+      return Center(child: Text('Error', style: TextStyle(fontSize: 24)));
+    } 
+    return Center(child: CircularProgressIndicator());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      body: FutureBuilder(
+        builder: (context, snapshot) => _body(context, snapshot),
+        future: _request(),
+      ),
+      drawer: _drawer(context),
+      bottomNavigationBar: _bottomNav()
+    );
+  }
 }

@@ -16,10 +16,10 @@ class Register extends StatelessWidget {
 
 class FormRegister extends StatefulWidget {
   @override
-  State<FormRegister> createState() => FormRegisterState();
+  State<FormRegister> createState() => _FormRegisterState();
 }
 
-class FormRegisterState extends State<FormRegister> {
+class _FormRegisterState extends State<FormRegister> {
 
   var _usernameController = TextEditingController();
   var _passwordController = TextEditingController();
